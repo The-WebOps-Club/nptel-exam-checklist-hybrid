@@ -1,6 +1,6 @@
 angular.module('starter.controllers', [])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout) {
+.controller('AppCtrl', function($scope, $ionicModal, $http, $window, $timeout) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -11,6 +11,9 @@ angular.module('starter.controllers', [])
 
   // Form data for the login modal
   $scope.loginData = {};
+
+  // Button text
+  $scope.button = "Log In"
 
   // Create the login modal that we will use later
   $ionicModal.fromTemplateUrl('templates/login.html', {
@@ -31,13 +34,21 @@ angular.module('starter.controllers', [])
 
   // Perform the login action when the user submits the login form
   $scope.doLogin = function() {
-    console.log('Doing login', $scope.loginData);
+    $scope.button = "Logging In..."
+    $http.post('https://auth.waviness63.hasura-app.io/login', {
+      "username":$scope.loginData.username,
+      "password":$scope.loginData.password})
+      .success(function(data) {
+        $http.defaults.headers.common['Authorization'] = "Bearer " + data['auth_token'];
+        $scope.button = "Login Successful!"
+        $timeout(function() {
+          $scope.closeLogin();
+        }, 900);
+      })
+      .error(function(data) {
+        $scope.button = data['message'];
+      });
 
-    // Simulate a login delay. Remove this and replace with your login
-    // code if using a login system
-    $timeout(function() {
-      $scope.closeLogin();
-    }, 1000);
   };
 })
 
