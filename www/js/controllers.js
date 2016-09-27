@@ -5,14 +5,15 @@ angular.module('starter.controllers', [])
   this.token = '';
   this.appname = "waviness63";
   this.login = function(username, password){
-    var defer = $q.defer();
+    var defer = $q.defer(),
+    _this = this; // Don't know a better way
     $http.post('https://auth.'+ this.appname + '.hasura-app.io/login', {
       "username":username,
       "password":password})
       .success(function(data) {
-        this.token = data['auth_token']; // doesn't work
-        $http.defaults.headers.common['Authorization'] = "Bearer " + this.token;
-        this.authorized = true; // doesn't work
+        _this.token = data['auth_token']; 
+        $http.defaults.headers.common['Authorization'] = "Bearer " + _this.token;
+        _this.authorized = true;
         defer.resolve();      
         })
       .error(function(data) {
@@ -31,7 +32,7 @@ angular.module('starter.controllers', [])
         {"type": type,
          "args": args
         });
-    if (this.authorized != true) {  // doesn't work
+    if (this.authorized != true) {  
       defer.reject("Not authorized.") 
     } else {
       $http.post('https://data.' + this.appname + '.hasura-app.io/v1/query', query)
@@ -84,7 +85,6 @@ angular.module('starter.controllers', [])
     hasura.login($scope.loginData.username, $scope.loginData.password)
       .then(function() {
         $scope.button = "Login Successful!"
-        hasura.query('select', {'table':'review', 'columns':['*']}).then(function(d){console.log(d)},function(d){console.log(d)}) // test doesn't work yet
         $timeout(function() {
           $scope.closeLogin();
         }, 900);
