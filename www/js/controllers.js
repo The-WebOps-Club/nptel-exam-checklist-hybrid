@@ -56,17 +56,24 @@ angular.module('starter.controllers')
 })
 
 .controller('StatesCtrl', function($scope, $stateParams, hasura) {
-  $scope.$on('$ionicView.enter', function(e) {
+  function refresh(){
     hasura.query('select', {
       table: TABLE_STATE,
       columns: ['id', 'name']
     })
     .then(function(data){
       $scope.states = data;
+      $scope.$broadcast('scroll.refreshComplete');
     }, function(error) {
       console.log(error)
     })
+  }
+  $scope.$on('$ionicView.enter', function(e) {
+    refresh();
   });
+  $scope.doRefresh = function() {
+    refresh();
+  };
 
 })
 

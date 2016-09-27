@@ -1,5 +1,9 @@
 <ion-view view-title="States">
   <ion-content>
+    <ion-refresher
+       pulling-text="Pull to refresh..."
+       on-refresh="doRefresh()">
+    </ion-refresher>
     <ion-list>
       <ion-item class="text-center" ng-repeat="state in states" href="#/app/states/{{state.name}}">
         {{state.name}}
