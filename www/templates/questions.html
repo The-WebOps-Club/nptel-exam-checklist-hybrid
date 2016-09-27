@@ -1,0 +1,54 @@
+<ion-view view-title="Questions">
+  <ion-content>
+    <ion-list>
+      <ion-item ng-repeat="question in questions">
+
+        <!-- <ion-label ng-if="question.type == 'heading'"><b>{{question.text}}</b></ion-label>
+
+        <ion-label ng-if="question.type == 'boolean'">{{question.text}}</ion-label>
+        <ion-toggle ng-if="question.type == 'boolean'" [(ngModel)]="pepperoni"></ion-toggle>
+
+        <ion-label ng-if="question.type == 'short_text'" primary floating>{{question.text}}</ion-label>
+        <ion-input ng-if="question.type == 'short_text'"></ion-input>
+
+
+        <ion-label ng-if="question.type == 'long_text'" floating>{{question.text}}</ion-label>
+        <ion-textarea ng-if="question.type == 'long_text'"></ion-textarea> -->
+
+        <label class="item" ng-if="question.type == 'heading'">
+          <span><b>{{question.text}}</b></span>
+        </label>
+
+        <label class="item item-input item-stacked-label" ng-if="question.type == 'short_text'">
+          <span class="input-label">{{question.text}}</span>
+          <input type="text" ng-model="answers[question.id]">
+        </label>
+
+        <ion-toggle ng-if="question.type == 'boolean'" toggle-class="toggle-calm">{{question.text}}</ion-toggle>
+
+        <label class="item item-input item-stacked-label" ng-if="question.type == 'long_text'">
+          <span class="input-label">{{question.text}}</span>
+          <textarea ng-model="answers[question.id]"></textarea>
+        </label>
+
+        <label class="item item-input item-stacked-label" ng-if="question.type == 'number'">
+          <span class="input-label">{{question.text}}</span>
+          <input type="number" ng-model="answers[question.id]">
+        </label>
+
+        <label class="item item-input item-stacked-label" ng-if="question.type == 'timestamp'">
+          <span class="input-label">{{question.text}}</span>
+          <input type="time" ng-model="answers[question.id]">
+        </label>
+
+      </ion-item>
+
+    </ion-list>
+
+    <button class="button button-full button-positive">
+      Save
+    </button>
+
+    
+  </ion-content>
+</ion-view>
