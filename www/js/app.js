@@ -6,7 +6,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers'])
 
-.run(function($ionicPlatform) {
+.run(function($ionicPlatform, $http, $window, hasura) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -18,6 +18,12 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     if (window.StatusBar) {
       // org.apache.cordova.statusbar required
       StatusBar.styleDefault();
+    }
+
+    var token = $window.localStorage.getItem('token');
+    if (token) {
+        $http.defaults.headers.common['Authorization'] = "Bearer " + token;
+        hasura.authorized = true;
     }
   });
 })
@@ -49,25 +55,45 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         }
       }
     })
-    .state('app.playlists', {
-      url: '/playlists',
+    .state('app.states', {
+      url: '/states',
       views: {
         'menuContent': {
-          templateUrl: 'templates/playlists.html',
-          controller: 'PlaylistsCtrl'
+          templateUrl: 'templates/states.html',
+          controller: 'StatesCtrl'
         }
       }
     })
 
-  .state('app.single', {
-    url: '/playlists/:playlistId',
+  .state('app.centers', {
+    url: '/states/:stateId',
     views: {
       'menuContent': {
-        templateUrl: 'templates/playlist.html',
-        controller: 'PlaylistCtrl'
+        templateUrl: 'templates/centers.html',
+        controller: 'CentersCtrl'
+      }
+    }
+  })
+
+  .state('app.exams', {
+    url: '/centers/:centerId',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/exams.html',
+        controller: 'ExamsCtrl'
+      }
+    }
+  })
+
+  .state('app.questions', {
+    url: '/exams/:examId',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/questions.html',
+        controller: 'QuestionsCtrl'
       }
     }
   });
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/app/playlists');
+  $urlRouterProvider.otherwise('/app/states');
 });

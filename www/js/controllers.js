@@ -1,3 +1,9 @@
+var TABLE_STATE = 'nptel_state';
+var TABLE_CENTER = 'nptel_center';
+var TABLE_EXAM = 'nptel_exam';
+var TABLE_QUESTION = 'nptel_question';
+var TABLE_ANSWER = 'nptel_answer';
+
 angular.module('starter.controllers')
 
 .controller('AppCtrl', function($scope, $ionicModal, $http, $window, $timeout, hasura) {
@@ -49,16 +55,68 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('PlaylistsCtrl', function($scope) {
-  $scope.playlists = [
-    { title: 'Reggae', id: 1 },
-    { title: 'Chill', id: 2 },
-    { title: 'Dubstep', id: 3 },
-    { title: 'Indie', id: 4 },
-    { title: 'Rap', id: 5 },
-    { title: 'Cowbell', id: 6 }
-  ];
+.controller('StatesCtrl', function($scope, $stateParams, hasura) {
+  $scope.$on('$ionicView.enter', function(e) {
+    hasura.query('select', {
+      table: TABLE_STATE,
+      columns: ['id', 'name']
+    })
+    .then(function(data){
+      $scope.states = data;
+    }, function(error) {
+      console.log(error)
+    })
+  });
+
 })
 
-.controller('PlaylistCtrl', function($scope, $stateParams) {
+.controller('CentersCtrl', function($scope, $stateParams, hasura) {
+  $scope.$on('$ionicView.enter', function(e) {
+    hasura.query('select', {
+      table: TABLE_CENTER,
+      columns: ['id', 'name'],
+      where: {
+        state: $stateParams.stateId
+      }
+    })
+    .then(function(data){
+      $scope.centers = data;
+    }, function(error) {
+      console.log(error)
+    })
+  });
+})
+
+.controller('ExamsCtrl', function($scope, $stateParams, hasura) {
+  $scope.$on('$ionicView.enter', function(e) {
+    hasura.query('select', {
+      table: TABLE_EXAM,
+      columns: ['id', 'name'],
+      where: {
+        center_id: parseInt($stateParams.centerId, 10)
+      }
+    })
+    .then(function(data){
+      $scope.exams = data;
+    }, function(error) {
+      console.log(error)
+    })
+  });
+})
+
+.controller('QuestionsCtrl', function($scope, $stateParams, hasura) {
+  $scope.answers = {};
+  hasura.query('select', {
+    table: TABLE_QUESTION,
+    columns: ['id', 'text', 'level', 'type', 'parent_question_id'],
+    order_by: '+id'
+  })
+  .then(function(data){
+    console.log(data);
+    $scope.questions = data;
+  }, function(error) {
+    console.log(error)
+  });
+
+
 });
