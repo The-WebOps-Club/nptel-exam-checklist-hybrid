@@ -1,6 +1,52 @@
 angular.module('starter.controllers', [])
 
-.controller('AppCtrl', function($scope, $ionicModal, $http, $window, $timeout) {
+.service('hasura', function($q, $http){
+  this.authorized = false;
+  this.token = '';
+  this.appname = "waviness63";
+  this.login = function(username, password){
+    var defer = $q.defer();
+    $http.post('https://auth.'+ this.appname + '.hasura-app.io/login', {
+      "username":username,
+      "password":password})
+      .success(function(data) {
+        this.token = data['auth_token']; // doesn't work
+        $http.defaults.headers.common['Authorization'] = "Bearer " + this.token;
+        this.authorized = true; // doesn't work
+        defer.resolve();      
+        })
+      .error(function(data) {
+        defer.reject(data);  
+      });
+      return defer.promise;
+  };
+  this.logout = function(){
+    this.token = '';
+    this.authorized = false;
+    $http.defaults.headers.common['Authorization'] ='';
+  };
+  this.query = function(type, args){
+    var defer = $q.defer(),
+      query = angular.toJson(
+        {"type": type,
+         "args": args
+        });
+    if (this.authorized != true) {  // doesn't work
+      defer.reject("Not authorized.") 
+    } else {
+      $http.post('https://data.' + this.appname + '.hasura-app.io/v1/query', query)
+      .success(function(data){
+        defer.resolve(data);
+      })
+      .error(function(data){
+        defer.reject(data)
+      })
+    }
+    return defer.promise;
+  }
+})
+
+.controller('AppCtrl', function($scope, $ionicModal, $http, $window, $timeout, hasura) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -35,19 +81,17 @@ angular.module('starter.controllers', [])
   // Perform the login action when the user submits the login form
   $scope.doLogin = function() {
     $scope.button = "Logging In..."
-    $http.post('https://auth.waviness63.hasura-app.io/login', {
-      "username":$scope.loginData.username,
-      "password":$scope.loginData.password})
-      .success(function(data) {
-        $http.defaults.headers.common['Authorization'] = "Bearer " + data['auth_token'];
+    hasura.login($scope.loginData.username, $scope.loginData.password)
+      .then(function() {
         $scope.button = "Login Successful!"
+        hasura.query('select', {'table':'review', 'columns':['*']}).then(function(d){console.log(d)},function(d){console.log(d)}) // test doesn't work yet
         $timeout(function() {
           $scope.closeLogin();
         }, 900);
-      })
-      .error(function(data) {
+      }, function(data) {
         $scope.button = data['message'];
       });
+
 
   };
 })
