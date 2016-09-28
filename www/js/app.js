@@ -47,11 +47,12 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     }
   })
 
-  .state('app.browse', {
-      url: '/browse',
+  .state('app.main', {
+      url: '/main',
       views: {
         'menuContent': {
-          templateUrl: 'templates/browse.html'
+          templateUrl: 'templates/main.html',
+          controller: 'MainCtrl'
         }
       }
     })
@@ -95,5 +96,5 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     }
   });
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/app/states');
+  $urlRouterProvider.otherwise('/app/main');
 });
