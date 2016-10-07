@@ -47,19 +47,27 @@ angular.module('starter.controllers', ['ionic'])
     return defer.promise;
   };
 })
-.service('localdb', function($window, hasura){
+.service('localdb', function($q, $window, hasura){
   this.update = function(){
-    var argq = [
+    var defer = $q.defer(),
+    argq = [
     {type: 'select', args:{table:'nptel_center', columns:['id','name','state','address',{'name':'exams',columns:['id','name','date',{'name':'course','columns':['*']},'start_time','end_time']}]}},
     {type: 'select', args:{table:'nptel_question', columns:['*']}},
-    ];
+    ],
+    _this = this;
     hasura.query(type='bulk', args=argq)
     .then(function(data){
       $window.localStorage['centers'] = JSON.stringify(data[0]);
       $window.localStorage['questions'] = JSON.stringify(data[1]);
-      return true;
+      _this.localupdate();
+      defer.resolve();
     }, function(error){
-      return error;
+      defer.reject(error);
     });
+    return defer.promise;
   };
+  this.localupdate = function(){
+    this.centers = JSON.parse($window.localStorage['centers']);
+    this.questions = JSON.parse($window.localStorage['questions'])
+  }
 })

@@ -6,7 +6,7 @@ var TABLE_ANSWER = 'nptel_answer';
 
 angular.module('starter.controllers')
 
-.controller('AppCtrl', function($scope, $ionicModal, $http, $window, $timeout, hasura) {
+.controller('AppCtrl', function($scope, $ionicModal, $http, $window, $timeout, hasura, localdb) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -128,6 +128,16 @@ angular.module('starter.controllers')
 
 })
 
-.controller('MainCtrl', function($scope, $stateParams, hasura) {
+.controller('MainCtrl', function($scope, $stateParams, hasura, localdb, $ionicLoading) {
+  $ionicLoading.show({
+    template: "Updating..."
+  });
+  localdb.update()
+  .then(function(){
+    $ionicLoading.hide();
+  }, function(error){
+    console.log(error);
+    $ionicLoading.hide();
+  })
 
 });
