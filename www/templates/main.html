@@ -1,5 +1,6 @@
 <ion-view view-title="NPTEL Exam Checklist">
   <ion-content class="text-center">
+
     <div ng-show="!localdb.hasData()">
       No sessions
     </div>
@@ -14,6 +15,7 @@
     <button class="button button-block button-positive" ng-click="loadData()" >
       <span ng-show="!localdb.hasData()">Load data</span><span ng-show="localdb.hasData()">Reload data (unsynced changes will be lost)</span>
     </button>
+
 
   </ion-content>
 </ion-view>

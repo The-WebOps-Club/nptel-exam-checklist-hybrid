@@ -8,6 +8,7 @@ angular.module('starter.controllers', ['ionic'])
   // if (token) {
   //   $http.defaults.headers.common['Authorization'] = "Bearer " + this.token;
   // }
+
   this.login = function(username, password){
     var defer = $q.defer(),
     _this = this; // Don't know a better way
@@ -31,6 +32,7 @@ angular.module('starter.controllers', ['ionic'])
     this.authorized = false;
     $http.defaults.headers.common['Authorization'] ='';
     $window.localStorage.clear();
+
   };
   this.query = function(type, args){
     var defer = $q.defer(),
