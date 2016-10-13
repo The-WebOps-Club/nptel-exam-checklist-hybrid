@@ -1,14 +1,19 @@
 <ion-view view-title="NPTEL Exam Checklist">
   <ion-content class="text-center">
+    <div ng-show="!localdb.hasData()">
+      No sessions
+    </div>
+    <div ng-show="localdb.hasData()">
+      <ion-list>
+        <ion-item class="text-center item item-text-wrap" ng-repeat="sn in sessions" href="#/app/questions/{{sn.id}}">
+          {{sn.session.name}} on {{sn.session.date}} at {{sn.center.name}}
+        </ion-item>
+      </ion-list>
+    </div>
 
-    add two buttons here. <br/>
+    <button class="button button-block button-positive" ng-click="loadData()" >
+      <span ng-show="!localdb.hasData()">Load data</span><span ng-show="localdb.hasData()">Reload data (unsynced changes will be lost)</span>
+    </button>
 
-    load data from server<br/>
-
-    show saved answers<br/>
-
-    if user is not logged in, ask to login from menu<br/>
-
-    
   </ion-content>
 </ion-view>

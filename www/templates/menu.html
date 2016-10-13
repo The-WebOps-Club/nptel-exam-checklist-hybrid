@@ -14,15 +14,18 @@
 
   <ion-side-menu side="left">
     <ion-header-bar class="bar-stable">
-      <h1 class="title">Left</h1>
+      <h1 class="title">Menu</h1>
     </ion-header-bar>
     <ion-content>
       <ion-list>
-        <ion-item menu-close ng-click="login()">
+        <ion-item menu-close ng-click="login()" ng-if="!authorized">
           Login
         </ion-item>
-        <ion-item menu-close href="#/app/states">
-          Select Exam
+        <ion-item menu-close ng-click="logout()" ng-if="authorized">
+          Logout
+        </ion-item>
+        <ion-item menu-close href="#/app/main">
+          Session
         </ion-item>
         <!-- <ion-item menu-close href="#/app/search">
           Search

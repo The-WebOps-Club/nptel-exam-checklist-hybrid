@@ -24,6 +24,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     if (token) {
         $http.defaults.headers.common['Authorization'] = "Bearer " + token;
         hasura.authorized = true;
+        hasura.token = token;
     }
   });
 })
@@ -87,7 +88,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
   })
 
   .state('app.questions', {
-    url: '/exams/:examId',
+    url: '/questions/:sessionId',
     views: {
       'menuContent': {
         templateUrl: 'templates/questions.html',

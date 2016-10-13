@@ -1,8 +1,11 @@
-var TABLE_STATE = 'nptel_state';
-var TABLE_CENTER = 'nptel_center';
-var TABLE_EXAM = 'nptel_exam';
-var TABLE_QUESTION = 'nptel_question';
-var TABLE_ANSWER = 'nptel_answer';
+var TABLE_STATE = 'nptel_state',
+    TABLE_CENTER = 'nptel_center',
+    TABLE_EXAM = 'nptel_exam',
+    TABLE_QUESTION = 'nptel_question',
+    TABLE_ANSWER = 'nptel_answer',
+    TABLE_SESSION = 'nptel_session',
+    TABLE_USER = 'nptel_user',
+    TABLE_SESSION_CENTER = 'nptel_session_center';
 
 angular.module('starter.controllers')
 
@@ -38,12 +41,20 @@ angular.module('starter.controllers')
     $scope.modal.show();
   };
 
+  $scope.logout = function () {
+    hasura.logout();
+    $scope.authorized = hasura.authorized;
+  }
+
+  $scope.authorized = hasura.authorized;
+
   // Perform the login action when the user submits the login form
   $scope.doLogin = function() {
     $scope.button = "Logging In..."
     hasura.login($scope.loginData.username, $scope.loginData.password)
       .then(function() {
         $scope.button = "Login Successful!"
+        $scope.authorized = hasura.authorized;
         $timeout(function() {
           $scope.closeLogin();
         }, 900);
@@ -111,23 +122,28 @@ angular.module('starter.controllers')
   });
 })
 
-.controller('QuestionsCtrl', function($scope, $stateParams, hasura) {
-  $scope.answers = {};
-  hasura.query('select', {
-    table: TABLE_QUESTION,
-    columns: ['id', 'text', 'level', 'type', 'parent_question_id'],
-    order_by: '+id'
-  })
-  .then(function(data){
-    console.log(data);
-    $scope.questions = data;
-  }, function(error) {
-    console.log(error)
-  });
-
-
+.controller('QuestionsCtrl', function($scope, $stateParams, hasura, localdb) {
+  var session_id = parseInt($stateParams.sessionId, 10);
+  $scope.session = localdb.getSessions(session_id);
+  $scope.answers = localdb.getAnswers(session_id);
+  if ($scope.session) {
+    $scope.questions = localdb.getQuestions();
+  }
+  $scope.save = function(){
+    console.log($scope.answers);
+    localdb.setAnswers(session_id, $scope.answers);
+  }
 })
 
-.controller('MainCtrl', function($scope, $stateParams, hasura) {
-
+.controller('MainCtrl', function($scope, $stateParams, hasura, localdb) {
+  $scope.localdb = localdb;
+  $scope.loadData = function () {
+    var result = localdb.update(
+      function(){
+        console.log(result);
+        $scope.sessions = localdb.getSessions();
+      }
+    );
+  }
+  $scope.sessions = localdb.getSessions();
 });
