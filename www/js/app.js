@@ -21,11 +21,12 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     }
 
     var token = $window.localStorage.getItem('token');
+    var hasura_id = parseInt($window.localStorage.getItem('hasura_id'));
     if (token) {
         $http.defaults.headers.common['Authorization'] = "Bearer " + token;
         hasura.authorized = true;
-
         hasura.token = token;
+        hasura.hasura_id = hasura_id;
     }
   });
 })
@@ -40,15 +41,6 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     controller: 'AppCtrl'
   })
 
-  .state('app.search', {
-    url: '/search',
-    views: {
-      'menuContent': {
-        templateUrl: 'templates/search.html'
-      }
-    }
-  })
-
   .state('app.main', {
       url: '/main',
       views: {
@@ -58,42 +50,10 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         }
       }
     })
-    .state('app.states', {
-      url: '/states',
-      views: {
-        'menuContent': {
-          templateUrl: 'templates/states.html',
-          controller: 'StatesCtrl'
-        }
-      }
-    })
-
-  .state('app.centers', {
-    url: '/states/:stateId',
-    views: {
-      'menuContent': {
-        templateUrl: 'templates/centers.html',
-        controller: 'CentersCtrl'
-      }
-    }
-  })
-
-  .state('app.exams', {
-    url: '/centers/:centerId',
-    views: {
-      'menuContent': {
-        templateUrl: 'templates/exams.html',
-        controller: 'ExamsCtrl'
-      }
-    }
-  })
 
   .state('app.questions', {
-<<<<<<< HEAD
     url: '/questions/:sessionId',
-=======
-    url: '/exams/:examId',
->>>>>>> 386623cd63cdd070326928769d8f6241b8c75a13
+
     views: {
       'menuContent': {
         templateUrl: 'templates/questions.html',

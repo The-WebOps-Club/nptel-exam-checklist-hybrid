@@ -45,6 +45,7 @@ angular.module('starter.controllers')
   $scope.logout = function () {
     hasura.logout();
     $scope.authorized = hasura.authorized;
+    $window.location = "#/app/main";
   }
 
   $scope.authorized = hasura.authorized;
@@ -57,8 +58,9 @@ angular.module('starter.controllers')
         $scope.button = "Login Successful!"
         $scope.authorized = hasura.authorized;
         $timeout(function() {
+          $scope.button = "Login"
           $scope.closeLogin();
-        }, 900);
+        }, 500);
       }, function(data) {
         $scope.button = data['message'];
       });
@@ -67,85 +69,79 @@ angular.module('starter.controllers')
   };
 })
 
-.controller('StatesCtrl', function($scope, $stateParams, hasura) {
-  function refresh(){
-    hasura.query('select', {
-      table: TABLE_STATE,
-      columns: ['id', 'name']
-    })
-    .then(function(data){
-      $scope.states = data;
-      $scope.$broadcast('scroll.refreshComplete');
-    }, function(error) {
-      console.log(error)
-    })
-  }
-  $scope.$on('$ionicView.enter', function(e) {
-    refresh();
-  });
-  $scope.doRefresh = function() {
-    refresh();
-  };
-
-})
-
-.controller('CentersCtrl', function($scope, $stateParams, hasura) {
-  $scope.$on('$ionicView.enter', function(e) {
-    hasura.query('select', {
-      table: TABLE_CENTER,
-      columns: ['id', 'name'],
-      where: {
-        state: $stateParams.stateId
-      }
-    })
-    .then(function(data){
-      $scope.centers = data;
-    }, function(error) {
-      console.log(error)
-    })
-  });
-})
-
-.controller('ExamsCtrl', function($scope, $stateParams, hasura) {
-  $scope.$on('$ionicView.enter', function(e) {
-    hasura.query('select', {
-      table: TABLE_EXAM,
-      columns: ['id', 'name'],
-      where: {
-        center_id: parseInt($stateParams.centerId, 10)
-      }
-    })
-    .then(function(data){
-      $scope.exams = data;
-    }, function(error) {
-      console.log(error)
-    })
-  });
-})
-
-.controller('QuestionsCtrl', function($scope, $stateParams, hasura, localdb) {
+.controller('QuestionsCtrl', function($scope, $stateParams, hasura, localdb, $window, loading) {
   var session_id = parseInt($stateParams.sessionId, 10);
+  $scope.session_id = session_id;
   $scope.session = localdb.getSessions(session_id);
   $scope.answers = localdb.getAnswers(session_id);
+  $scope.isSynced = localdb.isSynced;
   if ($scope.session) {
     $scope.questions = localdb.getQuestions();
   }
   $scope.save = function(){
+    loading.show()
+    $window.localStorage.setItem('synced_'+session_id.toString(), JSON.stringify(false));
     console.log($scope.answers);
     localdb.setAnswers(session_id, $scope.answers);
   }
 })
 
-.controller('MainCtrl', function($scope, $stateParams, hasura, localdb) {
+.controller('MainCtrl', function($scope, $stateParams, hasura, localdb, loading, $ionicPopup) {
+  // A confirm dialog
+  $scope.showConfirm = function() {
+    var confirmPopup = $ionicPopup.confirm({
+      title: 'Reload data',
+      template: 'Are you sure you want to reload data? There are unsynced changes, they will be lost!'
+    });
+
+    confirmPopup.then(function(res) {
+      if(res) {
+        console.log('You are sure');
+        loading.show();
+        var result = localdb.update(
+          function(){
+            console.log(result);
+            $scope.sessions = localdb.getSessions();
+          }
+        );
+        loading.hide();
+      } else {
+        console.log('You are not sure');
+      }
+    });
+  };
   $scope.localdb = localdb;
   $scope.loadData = function () {
-    var result = localdb.update(
-      function(){
-        console.log(result);
-        $scope.sessions = localdb.getSessions();
+    loading.show();
+
+    if (!hasura.authorized) {
+      $ionicPopup.alert({
+     title: 'Error!',
+     template: 'Please login to load data'
+   });
+    }
+    var unsaved = false;
+    var sessions = localdb.getSessions();
+    for (i in sessions) {
+      if (!localdb.isSynced(sessions[i].id)) {
+        unsaved = true;
       }
-    );
+    }
+    if(unsaved){
+      $scope.showConfirm();
+    } else {
+      var result = localdb.update(
+        function(){
+          console.log(result);
+          $scope.sessions = localdb.getSessions();
+        }
+      );
+      loading.hide();
+    }
+    loading.hide();
+    
   }
   $scope.sessions = localdb.getSessions();
+
 
 });

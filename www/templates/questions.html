@@ -1,5 +1,14 @@
 <ion-view view-title="Questions - {{session.session.name}}">
-  <ion-content>
+  <div class="bar bar-subheader">
+    <div class="button-bar">
+      <a class="button button-positive" ng-if="isSynced(session_id)">Synced</a>
+      <a class="button button-assertive" ng-if="!isSynced(session_id)">Not Synced</a>
+      <a class="button "><httploading></httploading></a>
+      <a class="button button-balanced" ng-click="save()">Save</a>
+      <!-- <a class="button">Third</a> -->
+    </div>
+  </div>
+  <ion-content class="has-subheader">
     <ion-list>
       <ion-item ng-repeat="question in questions">
 
@@ -46,8 +55,5 @@
 
     </ion-list>
 
-    <button class="button button-full button-positive" ng-click="save()">
-      Save
-    </button>
   </ion-content>
 </ion-view>

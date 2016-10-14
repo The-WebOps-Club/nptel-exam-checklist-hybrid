@@ -1,6 +1,45 @@
 angular.module('starter.controllers', ['ionic'])
+.directive('httploading',   ['$http' ,function ($http)
+  {
+      return {
+          restrict: 'E',
+          transclude: true,
+          scope: true,
+          template: '<div ng-show="show"><ion-spinner icon="ripple" ng-transclude></ion-spinner></div>',
+          link: function (scope, elm, attrs)
+          {
+              scope.show = false;
+              scope.isLoading = function () {
+                  return $http.pendingRequests.length > 0;
+              };
 
-.service('hasura', function($q, $http, $window){
+              scope.$watch(scope.isLoading, function (v)
+              {
+                  if(v){
+                      scope.show = true;
+                  }else{
+                      scope.show = false;
+                  }
+              });
+          }
+      };
+
+  }])
+.service('loading', function( $ionicLoading){
+  this.show = function() {
+    $ionicLoading.show({
+      template: '<httploading></httploading>'
+    }).then(function(){
+       console.log("The loading indicator is now displayed");
+    });
+  };
+  this.hide = function(){
+    $ionicLoading.hide().then(function(){
+       console.log("The loading indicator is now hidden");
+    });
+  };
+})
+.service('hasura', function($q, $http, $window, loading){
   this.authorized = false;
   this.token = '';
   this.appname = "waviness63.hasura-app.io";
@@ -10,6 +49,7 @@ angular.module('starter.controllers', ['ionic'])
   // }
 
   this.login = function(username, password){
+    loading.show();
     var defer = $q.defer(),
     _this = this; // Don't know a better way
     $http.post('https://auth.'+ this.appname + '/login', {
@@ -17,22 +57,27 @@ angular.module('starter.controllers', ['ionic'])
       "password":password})
       .success(function(data) {
         _this.token = data['auth_token'];
-        $window.localStorage.setItem('token', _this.token)
+        _this.hasura_id = data['hasura_id'];
+        $window.localStorage.setItem('token', _this.token);
+        $window.localStorage.setItem('hasura_id', _this.hasura_id);
         $http.defaults.headers.common['Authorization'] = "Bearer " + _this.token;
         _this.authorized = true;
+        loading.hide();
         defer.resolve();
         })
       .error(function(data) {
+        loading.hide();
         defer.reject(data);
       });
       return defer.promise;
   };
   this.logout = function(){
+    loading.show();
     this.token = '';
     this.authorized = false;
     $http.defaults.headers.common['Authorization'] ='';
     $window.localStorage.clear();
-
+    loading.hide();
   };
   this.query = function(type, args){
     var defer = $q.defer(),
@@ -54,7 +99,7 @@ angular.module('starter.controllers', ['ionic'])
     return defer.promise;
   };
 })
-.service('localdb', function($window, hasura){
+.service('localdb', function($window, hasura, loading){
   var _this = this;
   this.update = function(cb){
     var argq = [
@@ -70,7 +115,8 @@ angular.module('starter.controllers', ['ionic'])
   			"args": {
   				"table": TABLE_SESSION_CENTER,
           "where": {
-            "is_visible": true
+            "is_visible": true,
+            "center": {"allotted_user_id": {"$eq": hasura.hasura_id}}
           },
   				"columns": [
   					"id",
@@ -103,6 +149,7 @@ angular.module('starter.controllers', ['ionic'])
 
       for (i in data[3]) {
         _this.setAnswers(data[3][i]['session_center_id'], data[3][i]['answers'], false);
+        $window.localStorage.setItem('synced_'+data[3][i]['session_center_id'].toString(), JSON.stringify(true));
       }
       $window.localStorage.setItem('hasData', 1);
       cb(true);
@@ -118,7 +165,10 @@ angular.module('starter.controllers', ['ionic'])
   this.getUser = function() {
     return JSON.parse($window.localStorage.getItem('user'));
   };
-  this.getSessions = function(id=0) {
+  this.getSessions = function(id) {
+    if (!id) {
+      id = 0;
+    }
     var sessions = JSON.parse($window.localStorage.getItem('session_centers'));
     if (id === 0) {
       return sessions;
@@ -135,7 +185,10 @@ angular.module('starter.controllers', ['ionic'])
     return JSON.parse($window.localStorage.getItem('questions'));
   };
 
-  this.setAnswers = function (id, answers, sync=true) {
+  this.setAnswers = function (id, answers, sync) {
+    if (!sync) {
+      sync = true;
+    }
     $window.localStorage.setItem('answers_'+id.toString(), JSON.stringify(answers));
     console.log('Updated local', answers);
     // Make save API call
@@ -150,6 +203,8 @@ angular.module('starter.controllers', ['ionic'])
       hasura.query('insert', args)
         .then(function(data){
           console.log('Inserted ', data);
+          $window.localStorage.setItem('synced_'+id.toString(), JSON.stringify(true));
+          loading.hide();
         }, function(error){
           console.log('Insert failed', error);
           // Check if error is insert error
@@ -159,16 +214,21 @@ angular.module('starter.controllers', ['ionic'])
               args['$set'] = {answers: answers}
               delete(args.objects)
               console.log('uniqueness error try updating')
-              return hasura.query('update', args);
+              return hasura.query('update', args)  .then(function(data){
+                  loading.hide();
+                  console.log('Updated', data);
+                  $window.localStorage.setItem('synced_'+id.toString(), JSON.stringify(true));
+                }, function (error) {
+                  loading.hide();
+                  console.log('update error', error);
+                });
             }
           }
+          loading.hide();
         })
-        .then(function(data){
-          console.log('Updated', data);
-        }, function (error) {
-          console.log('update error', error);
-        });
+
     }
+    loading.hide();
   }
 
   this.getAnswers = function (id) {
@@ -177,6 +237,15 @@ angular.module('starter.controllers', ['ionic'])
       return JSON.parse(answers);
     } else {
       return {};
+    }
+  }
+
+  this.isSynced = function (id) {
+    var synced = $window.localStorage.getItem('synced_'+id.toString());
+    if (synced) {
+      return JSON.parse(synced);
+    } else {
+      return false;
     }
   }
 
