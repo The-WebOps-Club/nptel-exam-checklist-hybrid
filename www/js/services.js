@@ -129,8 +129,8 @@ angular.module('starter.controllers', ['ionic'])
   			"type": "select",
   			"args": {
   				"table": TABLE_QUESTION,
-          "columns": ['id', 'text', 'level', 'type', 'parent_question_id'],
-          "order_by": '+id'
+          "columns": ['id', 'text', 'level', 'type', 'parent_question_id', 'priority'],
+          "order_by": '+priority'
   			}
   		},
       { // 3
