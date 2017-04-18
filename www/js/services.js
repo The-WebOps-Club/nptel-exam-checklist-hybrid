@@ -42,7 +42,7 @@ angular.module('starter.controllers', ['ionic'])
 .service('hasura', function($q, $http, $window, loading){
   this.authorized = false;
   this.token = '';
-  this.appname = "waviness63.hasura-app.io";
+  this.appname = "webops.club";
   // var token = $window.localStorage.getItem('token');
   // if (token) {
   //   $http.defaults.headers.common['Authorization'] = "Bearer " + this.token;
