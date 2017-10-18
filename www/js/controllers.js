@@ -5,7 +5,8 @@ var TABLE_STATE = 'nptel_state',
     TABLE_ANSWER = 'nptel_answer',
     TABLE_SESSION = 'nptel_session',
     TABLE_USER = 'nptel_user',
-    TABLE_SESSION_CENTER = 'nptel_session_center';
+    TABLE_SESSION_CENTER = 'nptel_session_center',
+    TABLE_ANNOUNCEMENT = 'nptel_announcement';
 
 angular.module('starter.controllers')
 
@@ -144,4 +145,23 @@ angular.module('starter.controllers')
   $scope.sessions = localdb.getSessions();
 
 
+})
+
+.controller('AnnouncementsCtrl', function($scope, $stateParams, hasura, $window, loading) {
+  $scope.announcements = [];
+  $scope.numAnnouncements = 0;
+
+  var arga = {
+    table: 'nptel_announcement',
+    columns: ['id', 'text'],
+    order_by: '+id'
+  };
+  hasura.query('select', arga).then(function(data){
+      console.log(data);
+      
+      $scope.announcements = data.slice().reverse();
+      $scope.numAnnouncements = $scope.announcements.length;
+  }, function(error){
+      console.log(error);
+  })  
 });

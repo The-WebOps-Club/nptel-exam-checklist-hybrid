@@ -60,6 +60,15 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         controller: 'QuestionsCtrl'
       }
     }
+  })
+  .state('app.announcements', {
+    url: '/announcements',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/announcements.html',
+        controller: 'AnnouncementsCtrl'
+      }
+    }
   });
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/main');

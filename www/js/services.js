@@ -139,13 +139,21 @@ angular.module('starter.controllers', ['ionic'])
   				"table": TABLE_ANSWER,
           "columns": ['id', 'session_center_id', 'answers']
   			}
-  		}
+  		},
+      { // 4
+        "type": "select",
+        "args": {
+          "table": TABLE_ANNOUNCEMENT,
+          "columns": ['id', 'text']
+        }
+      }
   	];
     hasura.query(type='bulk', args=argq)
     .then(function(data){
       $window.localStorage.setItem('user', JSON.stringify(data[0]));
       $window.localStorage.setItem('session_centers', JSON.stringify(data[1]));
       $window.localStorage.setItem('questions', JSON.stringify(data[2]));
+      $window.localStorage.setItem('announcements', JSON.stringify(data[4]));
 
       for (i in data[3]) {
         _this.setAnswers(data[3][i]['session_center_id'], data[3][i]['answers'], false);

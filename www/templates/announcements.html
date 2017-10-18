@@ -1,0 +1,17 @@
+<ion-view view-title="NPTEL Exam Checklist">
+  <ion-content class="has-subheader">
+    <div ng-show="!announcements.length">
+      No Announcements
+    </div>
+    <div ng-show="announcements.length">
+      <ion-list>
+        <ion-item class="item item-text-wrap" ng-repeat="an in announcements track by $index">
+          <!-- <i class="ion-checkmark-circled" ng-if="an.id <= numAnnouncements" style="color: green;"></i> -->
+          <!-- <i class="ion-alert-circled" ng-if="an.id > numAnnouncements" style="color: red;"></i> -->
+          <i class="ion-alert-circled" style="color: red;"></i>
+          {{an.id}} - {{an.text}} 
+        </ion-item>
+      </ion-list>
+    </div>
+  </ion-content>
+</ion-view>
