@@ -52,7 +52,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     })
 
   .state('app.questions', {
-    url: '/questions/:sessionId',
+    url: '/questions/:actId/:sessionId',
 
     views: {
       'menuContent': {

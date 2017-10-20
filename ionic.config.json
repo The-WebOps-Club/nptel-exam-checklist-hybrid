@@ -1,7 +1,9 @@
 {
   "name": "nptel-exam-checklist-hybrid",
   "app_id": "",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "ionic1",
   "watchPatterns": [
     "scss/**/*",

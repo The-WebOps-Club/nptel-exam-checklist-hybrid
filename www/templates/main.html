@@ -15,10 +15,10 @@
     </div>
     <div ng-show="localdb.hasData()">
       <ion-list>
-        <ion-item class="item item-text-wrap" ng-repeat="sn in sessions" href="#/app/questions/{{sn.id}}">
+        <ion-item class="item item-text-wrap" ng-repeat="sn in sessions" href="#/app/questions/{{sn.session.id}}/{{sn.id}}">
           <i class="ion-checkmark-circled" ng-if="localdb.isSynced(sn.id)" style="color: green;"></i>
           <i class="ion-close-circled" ng-if="!localdb.isSynced(sn.id)" style="color: red;"></i>
-          {{sn.session.name}} on {{sn.session.date}} at {{sn.center.name}}
+          {{sn.session.name}} on {{sn.session.date}} at {{sn.center.name}} 
         </ion-item>
       </ion-list>
     </div>

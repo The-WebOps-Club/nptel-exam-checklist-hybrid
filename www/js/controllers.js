@@ -76,9 +76,24 @@ angular.module('starter.controllers')
   $scope.session = localdb.getSessions(session_id);
   $scope.answers = localdb.getAnswers(session_id);
   $scope.isSynced = localdb.isSynced;
+  var actId = $stateParams.actId;
+  // a small hack for now :/
   if ($scope.session) {
-    $scope.questions = localdb.getQuestions();
+    var allQuestions = localdb.getQuestions();
+    if (actId == 13) { 
+      $scope.questions = allQuestions.slice(0, 26);
+    }
+    if (actId == 14) { 
+      $scope.questions = allQuestions.slice(27, 48);
+    }
+    if (actId == 15) { 
+      var a = [allQuestions[27]];
+      var b = allQuestions.slice(48, 68);
+      Array.prototype.push.apply(a, b);
+      $scope.questions = a;
+    }
   }
+
   $scope.save = function(){
     loading.show()
     $window.localStorage.setItem('synced_'+session_id.toString(), JSON.stringify(false));
